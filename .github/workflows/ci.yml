@@ -1,0 +1,78 @@
+name: CI Pipeline
+
+# Controls when the workflow will run
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Job to run tests and linting
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8 pytest
+
+      - name: Run flake8 (Linting)
+        run: |
+          flake8 . --max-line-length=88
+
+      - name: Run unit tests with pytest
+        env:
+          PYTHONPATH: ./
+        run: pytest
+
+  # Job to build and push Docker image
+  build-and-push-docker:
+    needs: test-and-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/dns-api:${{ github.sha }} .
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/dns-api:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/dns-api:latest
+
+      - name: Push Docker image to DockerHub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/dns-api:${{ github.sha }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/dns-api:latest
+
+  # Job to package Helm chart
+  package-helm-chart:
+    needs: build-and-push-docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Package Helm chart
+        run: |
+          helm package ./dns-api-helm-chart

@@ -1,0 +1,45 @@
+# values.yaml
+
+# Application settings
+app:
+  name: dns-api
+  version: 0.1.0
+
+# Kubernetes resources
+replicaCount: 1
+
+# Docker image settings
+image:
+  repository: lexmill99/dns-api
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# Service settings
+service:
+  type: ClusterIP
+  port: 3000
+
+# Persistent Volume settings for Minikube
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  storagePath: /mnt/data
+
+# PostgreSQL settings (as an example)
+postgres:
+  enabled: true
+  image: postgres
+  username: postgres
+  database: mydatabase
+  port: 5432
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+  requests:
+    cpu: "50m"
+    memory: "128Mi"

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app: {{ .Release.Name }}
+data:
+  DATABASE_URI: postgresql://{{ .Values.postgres.username }}:{{ .Values.secrets.dbPasswordSecret }}@{{ .Release.Name }}-postgres:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}
+  FLASK_ENV: production
+  METRICS_PORT: "3000"
