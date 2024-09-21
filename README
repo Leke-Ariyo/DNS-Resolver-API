@@ -166,22 +166,23 @@ To ensure the database is correctly initialized, follow these steps:
 
 Before deploying the application, ensure the required Kubernetes secret is created. I recommend using Sealed Secrets or another secure method to manage sensitive data such as database passwords.
 
-Package the Helm Chart:
+### Package the Helm Chart:
 ```
 helm package ./dns-api-helm-chart
 ```
-Install the Helm Chart:
 
+### Install the Helm Chart:
 ```
 helm install dns-api ./dns-api-helm-chart
 ```
 
-Check the Deployment:
+### Check the Deployment:
 ```
 kubectl get pods
 kubectl get services
 ```
---
+
+---
 ## CI Pipeline
 
 This repository uses GitHub Actions to implement continuous integration, including:
@@ -207,4 +208,4 @@ To trigger the pipeline, just push your code to the `main` branch or create a pu
 
 ## Conclusion
 
-This project is designed with scalability, fault tolerance, and observability in mind. By leveraging modern tools like Docker, PostgreSQL, and Prometheus, this API is capable of being deployed to production environments such as Kubernetes with minimal effort. The architecture ensures easy setup, fast development cycles, and the ability to extend the service with more features as needed.
+This project is designed with scalability, fault tolerance, and observability in mind. By leveraging tools like Docker, PostgreSQL, and Prometheus, this API is capable of being deployed to production environments such as Kubernetes with minimal effort.
